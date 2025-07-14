@@ -28,13 +28,19 @@ xta_no_pauseP:
 
     ldw         r10, sp[STACK_SUSPEND_TIMER]}                     // Load timer from stack
     setc        res[r10], XS1_SETC_COND_NONE    // Read current time
-
+#if (XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME > 1)
     ldw         r4, sp[STACK_SOF_FRAME]
+#endif
     ldw         r8, sp[STACK_SUSPEND_TIMEOUT]   // Add suspend timeout to current time
 xta_no_pauseN:
     in          r11, res[r10]
-    {add         r11, r11, r8; add r4, r4, 1}
+#if (XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME > 1)
+    {add         r11, r11, r8; add r4, r4, 1} // Increment SOF counter for the endpoints to detect if a SOF happened between transactions
     {setd        res[r10], r11; stw r4, sp[STACK_SOF_FRAME]}
+#else
+    add         r11, r11, r8
+    setd        res[r10], r11
+#endif
 
     setc        res[r10], XS1_SETC_COND_AFTER   // Re-enable thread interrupts
     setsr       0x2

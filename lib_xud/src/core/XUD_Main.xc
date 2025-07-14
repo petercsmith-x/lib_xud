@@ -27,8 +27,9 @@
 #error USB_MAX_NUM_EP_OUT must be 16!
 #endif
 
-#if !(((XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME) == 1) || ((XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME) == 2))
-#error "XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME must be either 1 or 2"
+#if !((XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME == 1) || \
+     ((XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME == 2) && defined(__XS3A__)))
+#error "XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME must be 1 or 2 (2 only valid on XS3A)"
 #endif
 
 #if ((XUD_USB_ISO_EP_MAX_TXN_SIZE) > 1024)
@@ -403,6 +404,7 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
                     }
 
                     /* Reset in the ep structures */
+#if (XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME > 1)
                     for(int i = 0; i< noEpIn; i++)
                     {
                         if(ep_info[USB_MAX_NUM_EP_OUT+i].epType != XUD_EPTYPE_ISO)
@@ -410,6 +412,12 @@ static int XUD_Manager_loop(XUD_chan epChans0[], XUD_chan epAddr_Ready[],  chane
                             ep_info[USB_MAX_NUM_EP_OUT+i].pid = USB_PIDn_DATA0;
                         }
                     }
+#else
+                    for(int i = 0; i< noEpIn; i++)
+                    {
+                        ep_info[USB_MAX_NUM_EP_OUT+i].pid = USB_PIDn_DATA0;
+                    }
+#endif
 
                     /* Set default device address - note, for normal operation this is 0, but can be other values for testing */
                     XUD_HAL_SetDeviceAddress(XUD_STARTUP_ADDRESS);

@@ -24,9 +24,9 @@
 .align FUNCTION_ALIGNMENT
 XUD_IN_NotReady:
     ldw         r11, sp[STACK_EPTYPES_IN]
-#ifndef XUD_NAK_ISO_IN
+#ifndef _XUD_NAK_ISO_IN
     ldw         r11, r11[r10]                      // Load EP Type
-#else
+#else // Warning: creates invalid traffic. For debug only
     ldc         r11, 1
 #endif
     bt          r11, XUD_IN_TxHandshake
@@ -166,11 +166,17 @@ XUD_IN_DoneTx:
 ClearInEpReady:                                    // TODO Tidy this up
     {ldc        r9, 0                              // Coming from TxHandShakeReceived we already have 0 here, from DoneTail we don't
     ldw        r10, r5[r3]}                        // Load the EP struct
+#if (XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME > 1)
     ldw        r4, sp[STACK_SOF_FRAME]
+#endif
     stw        r9, r5[r3]                          // Clear the ready
     ldw        r11, r10[1]                         // Load channel
 xta_no_pauseC:
+#if (XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME > 1)
     out        res[r11], r4                        // Output word to signal packet sent okay
+#else
+    out        res[r11], r11                        // Output word to signal packet sent okay
+#endif
     bu         NextToken
 
 .align 64

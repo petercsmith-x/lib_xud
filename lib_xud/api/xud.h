@@ -27,6 +27,8 @@
  * Must not exceed 1024, per USB 2.0 spec limit for high-speed isochronous transfers.
  *
  * Default: 1024
+ *
+ * Applications can include a custom xud_conf.h file to override this value.
  */
 #define XUD_USB_ISO_EP_MAX_TXN_SIZE     (1024)
 #endif
@@ -41,6 +43,8 @@
  *
  * - Default: 1
  * - Maximum supported value: 2
+ *
+ * Applications can include a custom xud_conf.h file to override this value.
  *
  * Setting this to a value greater than 1 enables ISO High Bandwidth support
  * in lib_xud.

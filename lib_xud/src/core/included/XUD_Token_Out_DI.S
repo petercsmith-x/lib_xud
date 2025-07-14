@@ -29,12 +29,20 @@ xta_ep_DoOutNonIso_Ack:
 StoreTailDataOut:
     ldw        r11, r3[1]                       // Load EP chanend
 xta_no_pauseG:
+#if (XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME > 1)
     {out        res[r11], r4                    // Output datalength (words)
     ldw         r4, sp[STACK_SOF_FRAME]}
+#else
+    out        res[r11], r4                    // Output datalength (words)
+#endif
     stw        r1, r5[r10]                      // Clear ready (r1: 0)
 xta_no_pauseH:
+#if (XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME > 1)
     outt        res[r11], r8
     {outt       res[r11], r4;   ldw    r6, sp[STACK_RXCRC_INIT]} // CRC16 init (out) - Needs reseting after an out & Send tail length
+#else
+    {outt       res[r11], r8;   ldw    r6, sp[STACK_RXCRC_INIT]} // CRC16 init (out) - Needs reseting after an out & Send tail length
+#endif
 #if defined(__XS2A__)
     ldw         r1, sp[STACK_VTOK_PORT]
 #endif

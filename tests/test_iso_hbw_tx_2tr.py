@@ -40,7 +40,7 @@ def test_session(ep, address, bus_speed, core_freq):
                 ep_len=8
             )
         )
-    if core_freq == 600:
+    if core_freq < 800:
         pytest.xfail("HBW 2txn test requires a 800MHz part")
 
     return session

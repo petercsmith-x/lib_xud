@@ -190,14 +190,14 @@ then allow ``USB_StandardRequests()`` to finalise.
 
 The complete code listing for the main endpoint 0 task is shown below:
 
-.. literalinclude:: ../../examples/app_hid_mouse/src/endpoint0.xc
+.. literalinclude:: ../../examples/app_hid_mouse/src/main.xc
    :start-at: Endpoint0(
    :end-at: /* Endpoint0
 
 The skeleton ``HidInterfaceClassRequests()`` function deals with any outstanding HID requests. See
 the USB HID Specification for full request details:
 
-.. literalinclude:: ../../examples/app_hid_mouse/src/endpoint0.xc
+.. literalinclude:: ../../examples/app_hid_mouse/src/main.xc
    :start-at: HidInterfaceClassRequests(
    :end-at: /* HidInterfaceClassRequests
 

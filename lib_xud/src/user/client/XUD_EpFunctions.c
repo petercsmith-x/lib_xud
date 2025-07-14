@@ -26,10 +26,14 @@ void XUD_ResetEpStateByAddr(unsigned epAddr)
     }
 
     XUD_ep_info *ep = &ep_info[epAddr];
+#if (XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME > 1)
     if(ep->epType != XUD_EPTYPE_ISO)
     {
         ep->pid = pid;
     }
+#else
+    ep->pid = pid;
+#endif
 }
 
 void XUD_SetStallByAddr(int epNum)
@@ -142,8 +146,11 @@ __attribute__((always_inline)) static XUD_Result_t XUD_GetBuffer_Finish(chanend 
     /* Input tail length (bytes) */
     asm volatile("int %0, res[%1]" : "=r"(lengthTail) : "r"(c));
 
+#if (XUD_USB_ISO_MAX_TXNS_PER_MICROFRAME > 1)
+    /* Input (micro) frame counter */
     unsigned frame;
     asm volatile("int %0, res[%1]" : "=r"(frame) : "r"(c));
+#endif
 
     /* Bits to bytes */
     lengthTail >>= 3;
@@ -425,7 +432,7 @@ XUD_Result_t XUD_SetBuffer_Start(XUD_ep e, unsigned char buffer[], unsigned data
 #endif
 
     int lengthWords = send_len >> 2;
-    unsigned lengthTail = (send_len << 3) & 0x1f; // zext(5)?
+    unsigned lengthTail = (send_len & 3) << 3; // zext(5)?
 
     if((lengthTail == 0) && (lengthWords != 0))
     {
